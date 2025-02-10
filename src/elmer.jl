@@ -28,6 +28,10 @@ function get_convergence_history(fname)
     return df
 end
 
+function get_convergence_history(project; fname = "convergence.dat")  
+    return get_convergence_history(joinpath(project, fname))
+end
+
 function plot_nonlinear_convergence(table, solver_no;
         convergence = 1.0e-6,
         xlimits = nothing,
