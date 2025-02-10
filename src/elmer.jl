@@ -12,6 +12,7 @@ import ..Common
 
 export get_convergence_history
 export plot_nonlinear_convergence
+export load_saveline_table
 
 function get_convergence_history(fname)
     data = readdlm(fname; skipstart=1)
@@ -70,6 +71,12 @@ function plot_nonlinear_convergence(table, solver_no;
     end
 end
 
+function load_saveline_table(results; fname = "sides.dat")
+    head = get_saveline_columns(joinpath(results, "$(fname).names"))
+    data = readdlm(joinpath(results, fname))
+    return DataFrame(data, head)
+end
+
 #######################################################################
 # INTERNALS
 #######################################################################
@@ -117,6 +124,19 @@ function create_pseudotime!(df, last_iter)
 	
 	transform!(df, ["timestep", "nonlin"] => ByRow(func) => "pseudotime")
 	return nothing
+end
+
+function get_saveline_columns(filename; verbose = false, newline = nothing)
+    metadata = read(filename, String)
+    verbose && @info(metadata)
+
+    if isnothing(newline)
+        newline = Sys.iswindows() ? "\r\n" : "\n"
+    end
+
+    lines = split(metadata, newline)
+    lines = filter(l->occursin(r"^(\s+)(\d+):.", l), lines)
+    return map(l->match(r"^\s+\d+:\s+(?<x>(.+))", l)["x"], lines)
 end
 
 end # (Elmer)
