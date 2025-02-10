@@ -67,6 +67,9 @@ function plot_nonlinear_convergence(table, solver_no;
 
         ax.xlabel = "Time step"
         ax.ylabel = "Change"
+		ax.yminorticksvisible = true
+		ax.yminorgridvisible = true
+        ax.yminorticks = IntervalsBetween(9)
         
         f, ax
     end
