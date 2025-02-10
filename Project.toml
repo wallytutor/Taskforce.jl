@@ -1,0 +1,12 @@
+name = "Taskforce"
+uuid = "39bdc9df-3000-437a-a9be-07042f7ac931"
+authors = ["Walter Dal'Maz Silva <walter.dalmazsilva@gmail.com>"]
+version = "0.1.0"
+
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+
+[compat]
+DelimitedFiles = "1.9.1"
