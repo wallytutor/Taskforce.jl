@@ -1,7 +1,7 @@
 module Common
 
 using DataFrames
-
+using CairoMakie
 
 const MAKIETHEME = Theme(
 	fontsize = 10,
