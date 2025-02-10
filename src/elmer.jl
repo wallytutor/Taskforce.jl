@@ -14,7 +14,8 @@ export get_convergence_history
 export plot_nonlinear_convergence
 export load_saveline_table
 
-function get_convergence_history(fname)
+function get_convergence_history(project; fname = "convergence.dat")  
+    fname = joinpath(project, fname)
     data = readdlm(fname; skipstart=1)
     header = get_convergence_header(fname)
     df = DataFrame(data, header)
@@ -26,10 +27,6 @@ function get_convergence_history(fname)
 	Common.set_type!(df, "nonlin", Int64)
 
     return df
-end
-
-function get_convergence_history(project; fname = "convergence.dat")  
-    return get_convergence_history(joinpath(project, fname))
 end
 
 function plot_nonlinear_convergence(table, solver_no;
