@@ -29,11 +29,18 @@ class Solution:
         sol.TPX = T, P, X
         return sol
 
+    def density(self, /, **kwargs) -> float:
+        """ Density of provided mixture under normal conditions [kg/m³]. """
+        T = kwargs.get("T", self._sol.T)
+        P = kwargs.get("P", self._sol.P)
+        X = kwargs.get("X", None)
+        X = X if X else self._sol.mole_fraction_dict()
+        sol = self._handle_init(self._mech, X=X, T=T, P=P)
+        return sol.density_mass
+
     def density_normal(self, /, X: Composition = None) -> float:
         """ Density of provided mixture under normal conditions [kg/m³]. """
-        X = X if X is not None else self._sol.X
-        sol = self._handle_init(self._mech, X=X, T=T_NORMAL, P=P_NORMAL)
-        return sol.density_mass
+        return self.density(X=X, T=T_NORMAL, P=P_NORMAL)
 
     @property
     def solution(self) -> ct.Solution:
