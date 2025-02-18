@@ -119,4 +119,65 @@ def chon_complete_combustion(gas: ct.Solution) -> dict[str, float]:
     }
 
 
-# def adiabatic_combustion_flue(X_fuel, X_oxid, T_fuel, T_oxid)
+class FluidStream:
+    """ Represents a fluid mass flow stream of a Cantera solution. """
+    def __init__(self, mech, mass, T=298.15, P=ct.one_atm, **kwargs):
+        self._solution = self._handle_init(mech, T, P, **kwargs)
+        self._quantity = ct.Quantity(self._solution, mass=mass)
+
+    @staticmethod
+    def _handle_init(mech, T, P, **kwargs):
+        """ Object solution creation with option and error handling. """
+        solution = ct.Solution(mech)
+
+        if "X" in kwargs and "Y" in kwargs:
+            raise ValueError("Only one of `X` or `Y` can be specified")
+
+        if "X" not in kwargs and "Y" not in kwargs:
+            raise ValueError("At least one of `X` or `Y` must be specified")
+
+        if "X" in kwargs:
+            solution.TPX = T, P, kwargs.get("X")
+
+        if "Y" in kwargs:
+            solution.TPY = T, P, kwargs.get("Y")
+
+        return solution
+
+    @property
+    def quantity(self):
+        """ Provides access to underlining quantity of matter. """
+        return self._quantity
+
+    @classmethod
+    def copy(cls, other):
+        """ Copy `other` into a new `FluidStream`. """
+        mech = other.quantity.source
+        mass = other.quantity.mass
+        T, P, X = other.quantity.TPX
+        return cls(mech, mass, T=T, P=P, X=X)
+    
+
+def mix_streams(streams: list[FluidStream]):
+    """ Perform stream algebra to produce the resulting fluid. """
+    quantity = FluidStream.copy(streams[0]).quantity
+
+    for stream in streams[1:]:
+        quantity += stream.quantity
+
+    return quantity
+
+
+def complete_combustion(streams, threshold=1.0e-06):
+    """ Compute equivalent stream of complete combustion. """
+    mixture = mix_streams(streams)
+    mixture.equilibrate("TP")
+    
+    X = mixture.mole_fraction_dict()
+    X = {k: v for k, v in X.items() if v > threshold}
+    
+    mixture = mix_streams(streams)
+    mixture.equilibrate("HP")
+
+    mixture.TPX = None, None, X
+    return mixture
