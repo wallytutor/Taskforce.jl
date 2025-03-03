@@ -1,6 +1,7 @@
 module Common
 
 using DataFrames
+using DelimitedFiles
 using CairoMakie
 
 const MAKIETHEME = Theme(
@@ -57,6 +58,38 @@ function set_type!(df, column, totype)
 	!(column in names(df)) && return
 	transform!(df, column => ByRow(x -> convert(totype, x)) => column)
 	return nothing
+end
+
+function read_specific_row(filename::String, row_number::Int)
+    line = open(filename) do file
+        current_row = 1
+
+        for line in eachline(file)
+            current_row == row_number && return line
+            current_row += 1
+        end
+    end
+
+    isnothing(line) && error("Row number out of range")
+    return line
+end
+
+function count_lines(filename::String)
+    return open(filename) do fp
+        sum(_->1, eachline(fp))
+    end
+end
+
+function get_last_lines(filename::String, n::Int)
+    last_n_lines = open(filename) do file
+        all_lines = readlines(file)
+        return all_lines[end-n+1:end]
+    end
+
+    combined_lines = join(last_n_lines, "\n")
+    data = readdlm(IOBuffer(combined_lines))
+
+    return data
 end
 
 end # (Common)
