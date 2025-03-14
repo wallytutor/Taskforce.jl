@@ -1,0 +1,4 @@
+cantera
+numpy
+pandas
+pyparsing
