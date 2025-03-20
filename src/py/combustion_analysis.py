@@ -214,6 +214,20 @@ class CombustionPowerSupply:
         return self._mdot_o
 
     @property
+    def comburant_volume(self) -> float:
+        """ Access to comburant volume flow rate. """
+        if not hasattr(self, "_qdot_c"):
+            self._qdot_c = self._ca.normal_flow(self._mdot_c, self._Xc)
+        return self._qdot_c
+
+    @property
+    def oxidizer_volume(self) -> float:
+        """ Access to oxidizer volume flow rate. """
+        if not hasattr(self, "_qdot_o"):
+            self._qdot_o = self._ca.normal_flow(self._mdot_o, self._Xo)
+        return self._qdot_o
+
+    @property
     def comburant(self) -> CompositionType:
         """ Access to comburant mole fractions. """
         return self._Xc
@@ -244,16 +258,13 @@ class CombustionPowerSupply:
 
     def report(self) -> str:
         """ Generate combustion power and flow rates report."""
-        qdot_c = self._ca.normal_flow(self._mdot_c, self._Xc)
-        qdot_o = self._ca.normal_flow(self._mdot_o, self._Xo)
-    
         return dedent(f"""\
         - Required power              {self._power:7.1f} kW
         - Lower heating value         {self._lhv:7.1f} MJ/kg
         - Comburant mass flow rate    {3600*self._mdot_c:7.3f} kg/h
         - Oxidizer mass flow rate     {3600*self._mdot_o:7.3f} kg/h
-        - Comburant volume flow rate  {qdot_c:7.3f} Nm³/h
-        - Oxidizer volume flow rate   {qdot_o:7.3f} Nm³/h
+        - Comburant volume flow rate  {self.comburant_volume:7.3f} Nm³/h
+        - Oxidizer volume flow rate   {self.oxidizer_volume:7.3f} Nm³/h
         """)
 
 
